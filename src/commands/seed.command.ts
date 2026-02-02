@@ -137,9 +137,15 @@ export class SeedCommand implements CommandModule {
       spinner.succeed(`Seeders ${seedersNames} executed`)
     } catch (error) {
       return panic(spinner, error, `Failed to run the ${seedersNames} seeders!`)
+    } finally {
+      if (seedingSource.dataSource?.isInitialized) {
+        // Clean up data source so the command doesn't hang after execution
+        await seedingSource.dataSource.destroy()
+      }
     }
 
     console.log('👍 ', gray.underline(`Finished Seeding`))
+    process.exit(0) // tell node we want to exit explicitly, we're done
   }
 }
 
